@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Nueva Recepción — {{ business.NAME }}{% endblock %}
+
+{% block content %}
+<div class="grid-12" style="margin-bottom: var(--space-24);">
+  <div style="grid-column: span 12;">
+    <h1>Recepción de Equipo e Inspección Física</h1>
+    <p class="text-meta">Completa la ficha del cliente, equipo, PIN/contraseña cifrada y checklist de recepción.</p>
+  </div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="grid-12">
+
+    <!-- 1. Datos del Cliente -->
+    <div style="grid-column: span 6;" class="card">
+      <h2>1. Datos del Cliente</h2>
+      <p class="text-meta" style="margin-bottom: 16px;">Se identificará o creará automáticamente por teléfono (E.164).</p>
+      
+      <div class="form-group">
+        <label class="form-label">Teléfono WhatsApp *</label>
+        {{ cliente_form.telefono }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre Completo *</label>
+        {{ cliente_form.nombre_completo }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo Electrónico</label>
+        {{ cliente_form.email }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dirección</label>
+        {{ cliente_form.direccion }}
+      </div>
+    </div>
+
+    <!-- 2. Información del Equipo -->
+    <div style="grid-column: span 6;" class="card">
+      <h2>2. Información del Equipo</h2>
+      
+      <div class="form-group">
+        <label class="form-label">Tipo de Equipo *</label>
+        {{ equipo_form.tipo }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Marca *</label>
+        {{ equipo_form.marca }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Modelo Exacto *</label>
+        {{ equipo_form.modelo }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Número de Serie (S/N)</label>
+        {{ equipo_form.numero_serie }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">PIN / Contraseña (Cifrada con Fernet)</label>
+        {{ equipo_form.pin_plano }}
+      </div>
+    </div>
+
+    <!-- 3. Motivo de Ingreso y Checklist -->
+    <div style="grid-column: span 12;" class="card" style="margin-top: var(--space-24);">
+      <h2>3. Inspección Física y Checklist de Recepción</h2>
+      
+      <div class="grid-12">
+        <div style="grid-column: span 6;">
+          <div class="form-group">
+            <label class="form-label">Motivo de Ingreso / Fallas Reportadas *</label>
+            {{ orden_form.motivo_ingreso }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Accesorios Incluidos</label>
+            {{ orden_form.accesorios_incluidos }}
+          </div>
+        </div>
+
+        <div style="grid-column: span 6;">
+          <div class="form-group">
+            <label class="form-label">Estado de Pantalla</label>
+            {{ checklist_form.pantalla_estado }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estado de Teclado</label>
+            {{ checklist_form.teclado_estado }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Chasis / Bisagras</label>
+            {{ checklist_form.chasis_estetico }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Prueba de Encendido</label>
+            {{ checklist_form.enciende }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Fotos de Evidencia -->
+    <div style="grid-column: span 12;" class="card" style="margin-top: var(--space-24);">
+      <h2>4. Fotografías de Evidencia (Hasta 10 fotos)</h2>
+      <p class="text-meta" style="margin-bottom: 16px;">Selecciona las fotos del estado de recepción del equipo.</p>
+      <input type="file" name="fotos" multiple accept="image/*" class="form-control">
+    </div>
+
+    <div style="grid-column: span 12; margin-top: var(--space-24); text-align: right;">
+      <a href="{% url 'ordenes_list' %}" class="btn" style="margin-right: 16px;">Cancelar</a>
+      <button type="submit" class="btn btn--primary">Registrar Recepción y Generar Comprobante</button>
+    </div>
+
+  </div>
+</form>
+{% endblock %}

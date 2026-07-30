@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Orden {{ orden.codigo_orden }} — {{ business.NAME }}{% endblock %}
+
+{% block content %}
+<div class="grid-12" style="margin-bottom: var(--space-24);">
+  <div style="grid-column: span 8;">
+    <h1>Orden: {{ orden.codigo_orden }}</h1>
+    <p class="text-meta">Registrada el {{ orden.fecha_ingreso|date:"d/m/Y h:i A" }}</p>
+  </div>
+  <div style="grid-column: span 4; text-align: right;">
+    <a href="{% url 'descargar_comprobante_pdf' codigo_orden=orden.codigo_orden %}" class="btn btn--primary" target="_blank">📄 Descargar Comprobante PDF</a>
+  </div>
+</div>
+
+<div class="grid-12">
+  <div style="grid-column: span 6;" class="card">
+    <h2>Cliente</h2>
+    <p><strong>Nombre:</strong> {{ orden.cliente.nombre_completo }}</p>
+    <p><strong>Teléfono:</strong> {{ orden.cliente.telefono }}</p>
+    {% if orden.cliente.email %}<p><strong>Email:</strong> {{ orden.cliente.email }}</p>{% endif %}
+  </div>
+
+  <div style="grid-column: span 6;" class="card">
+    <h2>Equipo</h2>
+    <p><strong>Tipo / Marca / Modelo:</strong> {{ orden.equipo.get_tipo_display }} {{ orden.equipo.marca }} {{ orden.equipo.modelo }}</p>
+    {% if orden.equipo.numero_serie %}<p><strong>Número de Serie:</strong> {{ orden.equipo.numero_serie }}</p>{% endif %}
+    <p><strong>PIN / Contraseña Descifrada:</strong> <code style="background: var(--bg-secondary); padding: 2px 6px; border: 1px solid var(--border-color);">{{ pin_descifrado|default:"Sin PIN o no registrada" }}</code></p>
+  </div>
+
+  <div style="grid-column: span 12;" class="card">
+    <h2>Checklist de Inspección Física (Inmutable)</h2>
+    {% if orden.checklist %}
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+      {% for key, val in orden.checklist.datos_inspeccion.items %}
+      <tr style="border-bottom: 1px solid var(--border-color);">
+        <td style="padding: 8px; font-weight: bold; width: 30%;">{{ key|capfirst }}</td>
+        <td style="padding: 8px;">{{ val }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <p class="text-meta" style="font-family: monospace;">Firma Digital SHA-256: {{ orden.checklist.hash_sha256 }}</p>
+    {% else %}
+    <p class="text-meta">Sin checklist registrado.</p>
+    {% endif %}
+  </div>
+
+  {% if orden.fotos.all %}
+  <div style="grid-column: span 12;" class="card">
+    <h2>Fotografías de Evidencia Recibida</h2>
+    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+      {% for foto in orden.fotos.all %}
+      <div style="border: 1px solid var(--border-color); padding: 8px; max-width: 200px;">
+        <img src="{{ foto.imagen.url }}" alt="{{ foto.anotacion }}" style="max-width: 100%; height: auto; display: block; margin-bottom: 8px;">
+        <span class="text-meta">{{ foto.anotacion }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

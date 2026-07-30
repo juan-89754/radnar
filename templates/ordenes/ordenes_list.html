@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Órdenes de Servicio — {{ business.NAME }}{% endblock %}
+
+{% block content %}
+<div class="grid-12" style="margin-bottom: var(--space-24);">
+  <div style="grid-column: span 8;">
+    <h1>Órdenes de Servicio</h1>
+    <p class="text-meta">Gestión e inspección de equipos en taller.</p>
+  </div>
+  <div style="grid-column: span 4; text-align: right;">
+    <a href="{% url 'recepcion_nueva' %}" class="btn btn--primary">+ Nueva Recepción</a>
+  </div>
+</div>
+
+<div class="card" style="padding: 0;">
+  <table style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr style="border-bottom: 1px solid var(--border-color); background-color: var(--bg-secondary); text-transform: uppercase; font-size: 11px; color: var(--text-secondary);">
+        <th style="padding: 12px 16px; text-align: left;">Código</th>
+        <th style="padding: 12px 16px; text-align: left;">Cliente</th>
+        <th style="padding: 12px 16px; text-align: left;">Equipo</th>
+        <th style="padding: 12px 16px; text-align: left;">Estado</th>
+        <th style="padding: 12px 16px; text-align: left;">Fecha Ingreso</th>
+        <th style="padding: 12px 16px; text-align: right;">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for orden in ordenes %}
+      <tr style="border-bottom: 1px solid var(--border-color);">
+        <td style="padding: 12px 16px; font-weight: 700; font-family: monospace;">{{ orden.codigo_orden }}</td>
+        <td style="padding: 12px 16px;">
+          <strong>{{ orden.cliente.nombre_completo }}</strong><br>
+          <span class="text-meta">{{ orden.cliente.telefono }}</span>
+        </td>
+        <td style="padding: 12px 16px;">{{ orden.equipo.get_tipo_display }} {{ orden.equipo.marca }} {{ orden.equipo.modelo }}</td>
+        <td style="padding: 12px 16px;">
+          <span class="badge {% if orden.is_locked %}badge--accent{% endif %}">{{ orden.get_estado_display }}</span>
+        </td>
+        <td style="padding: 12px 16px;" class="text-meta">{{ orden.fecha_ingreso|date:"d/m/Y h:i A" }}</td>
+        <td style="padding: 12px 16px; text-align: right;">
+          <a href="{% url 'orden_detalle' codigo_orden=orden.codigo_orden %}" class="btn" style="padding: 4px 8px; font-size: 12px;">Ver Detalle</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" style="padding: 24px; text-align: center;" class="text-meta">
+          No hay órdenes de servicio registradas. Haz clic en <strong>+ Nueva Recepción</strong> para registrar la primera.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

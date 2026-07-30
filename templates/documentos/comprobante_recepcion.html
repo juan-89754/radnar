@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Comprobante de Recepción — {{ orden.codigo_orden }}</title>
+  <style>
+    @page {
+      size: letter;
+      margin: 20mm;
+    }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.4;
+      color: #111111;
+      background-color: #FFFFFF;
+      margin: 0;
+      padding: 0;
+    }
+    .header-table {
+      width: 100%;
+      border-bottom: 2pt solid #111111;
+      padding-bottom: 12pt;
+      margin-bottom: 16pt;
+    }
+    .brand {
+      font-size: 24pt;
+      font-weight: bold;
+      letter-spacing: -1pt;
+      text-transform: uppercase;
+    }
+    .brand-sub {
+      font-size: 9pt;
+      color: #6B6B6B;
+      margin-top: 2pt;
+    }
+    .order-code {
+      text-align: right;
+      font-size: 16pt;
+      font-weight: bold;
+      color: #0052CC;
+    }
+    .date-str {
+      text-align: right;
+      font-size: 9pt;
+      color: #6B6B6B;
+    }
+    .section-title {
+      font-size: 12pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5pt;
+      border-bottom: 1pt solid #E0E0E0;
+      padding-bottom: 4pt;
+      margin-top: 16pt;
+      margin-bottom: 8pt;
+    }
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 12pt;
+    }
+    .info-table td {
+      padding: 4pt 0;
+      vertical-align: top;
+    }
+    .label {
+      font-size: 9pt;
+      font-weight: bold;
+      color: #6B6B6B;
+      text-transform: uppercase;
+      width: 30%;
+    }
+    .val {
+      font-size: 10pt;
+      color: #111111;
+      width: 70%;
+    }
+    .checklist-box {
+      border: 1pt solid #E0E0E0;
+      padding: 8pt;
+      background-color: #F8F9FA;
+      font-size: 9pt;
+      margin-bottom: 12pt;
+    }
+    .footer-box {
+      margin-top: 24pt;
+      border-top: 1pt solid #E0E0E0;
+      padding-top: 12pt;
+      font-size: 8pt;
+      color: #6B6B6B;
+      text-align: justify;
+    }
+    .hash-code {
+      font-family: monospace;
+      font-size: 7pt;
+      color: #6B6B6B;
+      margin-top: 4pt;
+    }
+  </style>
+</head>
+<body>
+
+  <table class="header-table">
+    <tr>
+      <td>
+        <div class="brand">{{ business.NAME }}</div>
+        <div class="brand-sub">Servicio Técnico de Cómputo | Técnico: {{ business.OWNER }}</div>
+        <div class="brand-sub">Contacto: {{ business.PHONE }} | {{ business.EMAIL }}</div>
+      </td>
+      <td style="text-align: right; vertical-align: top;">
+        <div class="order-code">{{ orden.codigo_orden }}</div>
+        <div class="date-str">Fecha: {{ orden.fecha_ingreso|date:"d/m/Y h:i A" }}</div>
+        <div class="date-str">Estado: {{ orden.get_estado_display }}</div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="section-title">1. Datos del Cliente</div>
+  <table class="info-table">
+    <tr>
+      <td class="label">Nombre Cliente:</td>
+      <td class="val"><strong>{{ orden.cliente.nombre_completo }}</strong></td>
+    </tr>
+    <tr>
+      <td class="label">Teléfono WhatsApp:</td>
+      <td class="val">{{ orden.cliente.telefono }}</td>
+    </tr>
+    {% if orden.cliente.email %}
+    <tr>
+      <td class="label">Correo Electrónico:</td>
+      <td class="val">{{ orden.cliente.email }}</td>
+    </tr>
+    {% endif %}
+  </table>
+
+  <div class="section-title">2. Información del Equipo Recibido</div>
+  <table class="info-table">
+    <tr>
+      <td class="label">Tipo y Marca:</td>
+      <td class="val">{{ orden.equipo.get_tipo_display }} — {{ orden.equipo.marca }}</td>
+    </tr>
+    <tr>
+      <td class="label">Modelo Exacto:</td>
+      <td class="val">{{ orden.equipo.modelo }}</td>
+    </tr>
+    {% if orden.equipo.numero_serie %}
+    <tr>
+      <td class="label">Número de Serie:</td>
+      <td class="val">{{ orden.equipo.numero_serie }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+      <td class="label">Motivo de Ingreso:</td>
+      <td class="val">{{ orden.motivo_ingreso }}</td>
+    </tr>
+    <tr>
+      <td class="label">Accesorios Recibidos:</td>
+      <td class="val">{{ orden.accesorios_incluidos|default:"Ninguno registrado" }}</td>
+    </tr>
+  </table>
+
+  {% if orden.checklist %}
+  <div class="section-title">3. Estado Físico e Inspección de Recepción</div>
+  <div class="checklist-box">
+    <table style="width: 100%;">
+      {% for key, val in orden.checklist.datos_inspeccion.items %}
+      <tr>
+        <td style="width: 40%; font-weight: bold;">{{ key|capfirst }}:</td>
+        <td style="width: 60%;">{{ val }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  {% endif %}
+
+  <div class="footer-box">
+    <p><strong>Nota legal y condiciones del servicio:</strong> Este comprobante certifica la recepción física del equipo en el estado indicado arriba para su evaluación y diagnóstico técnico. El cliente declara conocer las observaciones registradas. RADNAR no se hace responsable por pérdida de información no respaldada previamente por el usuario.</p>
+    {% if orden.checklist %}
+    <div class="hash-code">Firma digital de inmutabilidad (SHA-256): {{ orden.checklist.hash_sha256 }}</div>
+    {% endif %}
+  </div>
+
+</body>
+</html>
