@@ -1,0 +1,203 @@
+/* ==========================================================================
+   RADNAR Design System — Estilo Suizo (International Typographic Style)
+   Sección 4 del Manual de Instrucciones
+   ========================================================================== */
+
+:root {
+  /* 4.3 Color — Monocromo + Un solo acento */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8F9FA;
+  --text-primary: #111111;
+  --text-secondary: #6B6B6B;
+  --border-color: #E0E0E0;
+  
+  /* Color de Acento Corporativo (Reservado para estados, botones primarios, alertas) */
+  --accent-color: #0052CC;
+  --accent-hover: #003E99;
+
+  /* 4.2 Tipografía — Stack Neo-Grotesco */
+  --font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  
+  /* Escala de espaciado modular de 8px */
+  --space-8: 8px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  /* 4.5 Restricciones: bordes limpios, máximo 4px radius */
+  --border-radius: 2px;
+}
+
+/* Reset Suizo */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left; /* Alineación a la izquierda por defecto */
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 4.1 Rejilla Modular de 12 Columnas */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--space-24);
+}
+
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-24);
+}
+
+/* Jerarquía Tipográfica por Contraste y Peso */
+h1, .h1 {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-16);
+}
+
+h2, .h2 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: var(--space-16);
+}
+
+h3, .h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: var(--space-8);
+}
+
+p, span, label {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.text-meta {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+/* Componentes BEM Suizos */
+.header {
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--space-24) 0;
+  margin-bottom: var(--space-32);
+}
+
+.header__brand {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.header__meta {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* Botones BEM */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-16);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn--primary {
+  background-color: var(--accent-color);
+  color: #FFFFFF;
+  border-color: var(--accent-color);
+}
+
+.btn--primary:hover {
+  background-color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+/* Formularios BEM */
+.form-group {
+  margin-bottom: var(--space-16);
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-8);
+  color: var(--text-primary);
+}
+
+.form-control {
+  width: 100%;
+  padding: var(--space-8) var(--space-16);
+  font-family: var(--font-family);
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
+/* Tarjetas BEM */
+.card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: var(--space-24);
+  background-color: var(--bg-primary);
+}
+
+/* Badges BEM */
+.badge {
+  display: inline-block;
+  padding: 2px var(--space-8);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.badge--accent {
+  background-color: var(--accent-color);
+  color: #FFFFFF;
+  border-color: var(--accent-color);
+}

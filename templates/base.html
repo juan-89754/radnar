@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ business.NAME }} — Sistema de Gestión Técnica{% endblock %}</title>
+  
+  <!-- Estilo Suizo Base -->
+  <link rel="stylesheet" href="{% static 'css/swiss.css' %}">
+
+  <!-- Fuente Inter desde Google Fonts / Fallback local -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <header class="header">
+    <div class="container grid-12">
+      <div style="grid-column: span 8;">
+        <a href="{% url 'home' %}" class="header__brand">{{ business.NAME }}</a>
+        <div class="header__meta">Servicio Técnico de Cómputo | Técnico: {{ business.OWNER }}</div>
+      </div>
+      <div style="grid-column: span 4; text-align: right;">
+        <span class="badge badge--accent">En desarrollo</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer style="margin-top: var(--space-64); border-top: 1px solid var(--border-color); padding: var(--space-24) 0;" class="text-meta">
+    <div class="container">
+      RADNAR &copy; {% now "Y" %} | Contacto: {{ business.PHONE }} — {{ business.EMAIL }}
+    </div>
+  </footer>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

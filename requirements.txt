@@ -1,0 +1,29 @@
+# Core Django & API
+Django>=5.0,<5.2
+djangorestframework>=3.14.0
+python-dotenv>=1.0.1
+
+# Security & Encryption
+cryptography>=42.0.0
+
+# Document & Image Processing
+WeasyPrint>=61.0
+Pillow>=10.2.0
+pdf2image>=1.17.0
+openpyxl>=3.1.2
+
+# Scraping & Web Utilities
+requests>=2.31.0
+beautifulsoup4>=4.12.3
+
+# Storage & Backups
+django-storages>=1.14.2
+django-dbbackup>=4.1.0
+
+# Quality & Testing
+black>=24.0.0
+ruff>=0.3.0
+isort>=5.13.0
+mypy>=1.9.0
+pytest>=8.0.0
+pytest-django>=4.8.0
