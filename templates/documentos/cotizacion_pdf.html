@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Cotización — {{ cotizacion.orden.codigo_orden }}</title>
+  <style>
+    @page {
+      size: letter;
+      margin: 20mm;
+    }
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.4;
+      color: #111111;
+      background-color: #FFFFFF;
+      margin: 0;
+      padding: 0;
+    }
+    .header-table {
+      width: 100%;
+      border-bottom: 2pt solid #111111;
+      padding-bottom: 12pt;
+      margin-bottom: 16pt;
+    }
+    .brand {
+      font-size: 24pt;
+      font-weight: bold;
+      letter-spacing: -1pt;
+      text-transform: uppercase;
+    }
+    .brand-sub {
+      font-size: 9pt;
+      color: #6B6B6B;
+      margin-top: 2pt;
+    }
+    .quote-title {
+      font-size: 16pt;
+      font-weight: bold;
+      color: #0052CC;
+      text-align: right;
+    }
+    .section-title {
+      font-size: 12pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5pt;
+      border-bottom: 1pt solid #E0E0E0;
+      padding-bottom: 4pt;
+      margin-top: 20pt;
+      margin-bottom: 10pt;
+    }
+    .table-quote {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16pt;
+    }
+    .table-quote th {
+      background-color: #F8F9FA;
+      border-bottom: 1pt solid #111111;
+      text-align: left;
+      padding: 6pt 8pt;
+      font-size: 9pt;
+      text-transform: uppercase;
+    }
+    .table-quote td {
+      border-bottom: 1pt solid #E0E0E0;
+      padding: 6pt 8pt;
+      font-size: 10pt;
+    }
+    .total-box {
+      text-align: right;
+      font-size: 14pt;
+      font-weight: bold;
+      color: #0052CC;
+      margin-top: 8pt;
+      margin-bottom: 16pt;
+    }
+    .footer-notes {
+      border-top: 1pt solid #E0E0E0;
+      padding-top: 10pt;
+      font-size: 9pt;
+      color: #6B6B6B;
+    }
+  </style>
+</head>
+<body>
+
+  <table class="header-table">
+    <tr>
+      <td>
+        <div class="brand">{{ business.NAME }}</div>
+        <div class="brand-sub">Servicio Técnico de Cómputo | Técnico: {{ business.OWNER }}</div>
+        <div class="brand-sub">Contacto: {{ business.PHONE }} | {{ business.EMAIL }}</div>
+      </td>
+      <td style="text-align: right; vertical-align: top;">
+        <div class="quote-title">COTIZACIÓN DE SERVICIO</div>
+        <div style="font-size: 10pt; font-weight: bold;">Orden: {{ cotizacion.orden.codigo_orden }}</div>
+        <div style="font-size: 9pt; color: #6B6B6B;">Fecha: {{ cotizacion.created_at|date:"d/m/Y" }}</div>
+      </td>
+    </tr>
+  </table>
+
+  <div style="margin-bottom: 16pt;">
+    <strong>Cliente:</strong> {{ cotizacion.orden.cliente.nombre_completo }} | <strong>Teléfono:</strong> {{ cotizacion.orden.cliente.telefono }}<br>
+    <strong>Equipo:</strong> {{ cotizacion.orden.equipo.get_tipo_display }} {{ cotizacion.orden.equipo.marca }} {{ cotizacion.orden.equipo.modelo }}
+  </div>
+
+  <!-- OPCIÓN A -->
+  <div class="section-title">Opción A (Recomendada / Principal)</div>
+  <table class="table-quote">
+    <thead>
+      <tr>
+        <th style="width: 55%;">Descripción / Repuesto o Servicio</th>
+        <th style="width: 15%; text-align: center;">Cantidad</th>
+        <th style="width: 15%; text-align: right;">Precio Unit.</th>
+        <th style="width: 15%; text-align: right;">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for linea in lineas_opcion_a %}
+      <tr>
+        <td>{{ linea.descripcion }}</td>
+        <td style="text-align: center;">{{ linea.cantidad }}</td>
+        <td style="text-align: right;">${{ linea.precio_cliente }}</td>
+        <td style="text-align: right;">${{ linea.subtotal_cliente }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" style="color: #6B6B6B; text-align: center;">Sin elementos en la Opción A</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="total-box">Total Opción A: ${{ cotizacion.total_opcion_a }}</div>
+
+  <!-- OPCIÓN B (Si tiene elementos) -->
+  {% if lineas_opcion_b %}
+  <div class="section-title">Opción B (Alternativa / Económica)</div>
+  <table class="table-quote">
+    <thead>
+      <tr>
+        <th style="width: 55%;">Descripción / Repuesto o Servicio</th>
+        <th style="width: 15%; text-align: center;">Cantidad</th>
+        <th style="width: 15%; text-align: right;">Precio Unit.</th>
+        <th style="width: 15%; text-align: right;">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for linea in lineas_opcion_b %}
+      <tr>
+        <td>{{ linea.descripcion }}</td>
+        <td style="text-align: center;">{{ linea.cantidad }}</td>
+        <td style="text-align: right;">${{ linea.precio_cliente }}</td>
+        <td style="text-align: right;">${{ linea.subtotal_cliente }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="total-box">Total Opción B: ${{ cotizacion.total_opcion_b }}</div>
+  {% endif %}
+
+  {% if cotizacion.notas_cliente %}
+  <div class="footer-notes">
+    <strong>Observaciones:</strong> {{ cotizacion.notas_cliente }}
+  </div>
+  {% endif %}
+
+  <div class="footer-notes" style="margin-top: 16pt;">
+    <p>Garantía de repuestos e instalación aplicable según términos de diagnóstico. Por favor confirma tu opción preferida por WhatsApp.</p>
+  </div>
+
+</body>
+</html>
