@@ -32,3 +32,15 @@ def generar_pdf_cotizacion(cotizacion) -> bytes:
     }
     html_string = render_to_string("documentos/cotizacion_pdf.html", context)
     return HTML(string=html_string).write_pdf()
+
+
+def generar_ticket_termico(orden) -> bytes:
+    """
+    Generates an 80mm thermal receipt PDF using WeasyPrint.
+    """
+    context = {
+        "orden": orden,
+        "business": settings.BUSINESS_INFO,
+    }
+    html_string = render_to_string("documentos/ticket_termico.html", context)
+    return HTML(string=html_string).write_pdf()

@@ -4,27 +4,33 @@
 
 {% block content %}
 <div class="grid-12">
-  <div style="grid-column: span 12;">
+  <div style="grid-column: span 12; margin-bottom: var(--space-24);">
     <h1>Sistema de Gestión Técnica RADNAR</h1>
-    <p class="text-meta" style="margin-bottom: var(--space-24);">Entorno de desarrollo configurado exitosamente (Fase 0).</p>
+    <p class="text-meta">Servicio Técnico de Cómputo — Técnico: {{ business.OWNER }}</p>
   </div>
 
-  <div style="grid-column: span 4;" class="card">
-    <h3>01. Recepción y Diagnóstico</h3>
-    <p class="text-meta">Registro de cliente, checklist de recepción e inspección física con fotos.</p>
-    <a href="#" class="btn btn--primary" style="margin-top: var(--space-16);">Fase 1</a>
+  <div style="grid-column: span 3;" class="card">
+    <h3>01. Recepción</h3>
+    <p class="text-meta" style="margin: 8px 0;">Registro de cliente, checklist SHA-256, fotos de evidencia y PIN cifrado Fernet.</p>
+    <a href="{% url 'recepcion_nueva' %}" class="btn btn--primary" style="margin-top: var(--space-16); display: inline-block;">+ Nueva Recepción</a>
   </div>
 
-  <div style="grid-column: span 4;" class="card">
-    <h3>02. Cotizaciones</h3>
-    <p class="text-meta">Opciones A/B, scraping de MercadoLibre/Amazon y control de márgenes.</p>
-    <a href="#" class="btn" style="margin-top: var(--space-16);">Fase 2</a>
+  <div style="grid-column: span 3;" class="card">
+    <h3>02. Tablero Kanban</h3>
+    <p class="text-meta" style="margin: 8px 0;">8 estados, matriz de transiciones estrictas y trazabilidad completa por orden.</p>
+    <a href="{% url 'kanban_board' %}" class="btn btn--primary" style="margin-top: var(--space-16); display: inline-block;">Ver Kanban</a>
   </div>
 
-  <div style="grid-column: span 4;" class="card">
-    <h3>03. Kanban y Salidas</h3>
-    <p class="text-meta">Trazabilidad en 8 estados, PDFs WeasyPrint y mensajes de WhatsApp.</p>
-    <a href="#" class="btn" style="margin-top: var(--space-16);">Fase 3</a>
+  <div style="grid-column: span 3;" class="card">
+    <h3>03. Órdenes</h3>
+    <p class="text-meta" style="margin: 8px 0;">Listado completo de órdenes, historial de estados y bitácora técnica privada.</p>
+    <a href="{% url 'ordenes_list' %}" class="btn" style="margin-top: var(--space-16); display: inline-block;">Ver Órdenes</a>
+  </div>
+
+  <div style="grid-column: span 3;" class="card">
+    <h3>04. Cotizaciones</h3>
+    <p class="text-meta" style="margin: 8px 0;">Opciones A/B, scraping MercadoLibre/Amazon, márgenes automáticos y PDF cliente.</p>
+    <a href="{% url 'cotizaciones_list' %}" class="btn" style="margin-top: var(--space-16); display: inline-block;">Ver Cotizaciones</a>
   </div>
 </div>
 {% endblock %}

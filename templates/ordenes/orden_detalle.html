@@ -2,18 +2,86 @@
 
 {% block title %}Orden {{ orden.codigo_orden }} — {{ business.NAME }}{% endblock %}
 
+{% block extra_head %}
+<style>
+  .estado-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 2px;
+    background: var(--accent-color);
+    color: #fff;
+  }
+  .transition-btn {
+    display: inline-block;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    border-radius: 2px;
+    background: transparent;
+    cursor: pointer;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    transition: all 0.15s;
+  }
+  .transition-btn:hover {
+    background: var(--accent-color);
+    color: #fff;
+  }
+  .historial-row { font-size: 12px; border-bottom: 1px solid var(--border-color); padding: 6px 0; }
+  .bitacora-entry {
+    background: var(--bg-secondary);
+    border-left: 3px solid var(--accent-color);
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    border-radius: 0 2px 2px 0;
+  }
+  .wa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #25D366;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 2px;
+    text-decoration: none;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    transition: background 0.15s;
+  }
+  .wa-btn:hover { background: #1da050; color: #fff; }
+</style>
+{% endblock %}
+
 {% block content %}
+
+<!-- Encabezado de la Orden -->
 <div class="grid-12" style="margin-bottom: var(--space-24);">
   <div style="grid-column: span 8;">
-    <h1>Orden: {{ orden.codigo_orden }}</h1>
-    <p class="text-meta">Registrada el {{ orden.fecha_ingreso|date:"d/m/Y h:i A" }}</p>
+    <h1>Orden: <span style="color: var(--accent-color);">{{ orden.codigo_orden }}</span></h1>
+    <p>
+      <span class="estado-badge">{{ orden.get_estado_display }}</span>
+      <span class="text-meta" style="margin-left: 12px;">Registrada el {{ orden.fecha_ingreso|date:"d/m/Y h:i A" }}</span>
+    </p>
   </div>
-  <div style="grid-column: span 4; text-align: right;">
-    <a href="{% url 'descargar_comprobante_pdf' codigo_orden=orden.codigo_orden %}" class="btn btn--primary" target="_blank">📄 Descargar Comprobante PDF</a>
+  <div style="grid-column: span 4; text-align: right; display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+    <a href="{% url 'descargar_comprobante_pdf' codigo_orden=orden.codigo_orden %}" class="btn btn--primary" target="_blank">📄 Comprobante PDF</a>
+    <a href="{% url 'descargar_ticket_termico' codigo_orden=orden.codigo_orden %}" class="btn" target="_blank">🖨️ Ticket 80mm</a>
+    <a href="{% url 'kanban_board' %}" class="btn" style="font-size: 12px;">← Volver al Kanban</a>
   </div>
 </div>
 
 <div class="grid-12">
+
+  <!-- 1. Cliente y Equipo -->
   <div style="grid-column: span 6;" class="card">
     <h2>Cliente</h2>
     <p><strong>Nombre:</strong> {{ orden.cliente.nombre_completo }}</p>
@@ -24,39 +92,122 @@
   <div style="grid-column: span 6;" class="card">
     <h2>Equipo</h2>
     <p><strong>Tipo / Marca / Modelo:</strong> {{ orden.equipo.get_tipo_display }} {{ orden.equipo.marca }} {{ orden.equipo.modelo }}</p>
-    {% if orden.equipo.numero_serie %}<p><strong>Número de Serie:</strong> {{ orden.equipo.numero_serie }}</p>{% endif %}
-    <p><strong>PIN / Contraseña Descifrada:</strong> <code style="background: var(--bg-secondary); padding: 2px 6px; border: 1px solid var(--border-color);">{{ pin_descifrado|default:"Sin PIN o no registrada" }}</code></p>
+    {% if orden.equipo.numero_serie %}<p><strong>N/S:</strong> {{ orden.equipo.numero_serie }}</p>{% endif %}
+    <p><strong>PIN / Contraseña:</strong> <code style="background: var(--bg-secondary); padding: 2px 6px; border: 1px solid var(--border-color);">{{ pin_descifrado|default:"Sin PIN registrado" }}</code></p>
+    <p><strong>Motivo:</strong> {{ orden.motivo_ingreso }}</p>
   </div>
 
+  <!-- 2. Cambio de Estado (Kanban) -->
   <div style="grid-column: span 12;" class="card">
-    <h2>Checklist de Inspección Física (Inmutable)</h2>
+    <h2>Cambiar Estado de la Orden</h2>
+    {% if transiciones_disponibles %}
+    <form method="post" action="{% url 'cambiar_estado_orden' codigo_orden=orden.codigo_orden %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Seleccionar Siguiente Estado</label>
+        <select name="nuevo_estado" class="form-control" style="max-width: 300px;">
+          {% for estado in transiciones_disponibles %}
+          <option value="{{ estado }}">{{ estado|capfirst }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notas de Transición (Opcional)</label>
+        <input type="text" name="notas_transicion" class="form-control" style="max-width: 500px;" placeholder="Ej. Repuesto llegó, iniciando instalación...">
+      </div>
+      <button type="submit" class="btn btn--primary">Avanzar Estado →</button>
+    </form>
+    {% else %}
+    <p class="text-meta">
+      {% if orden.estado == 'entregado_cobrado' %}
+        ✅ Orden completada y cerrada (estado terminal).
+      {% else %}
+        Sin transiciones disponibles desde el estado actual.
+      {% endif %}
+    </p>
+    {% endif %}
+  </div>
+
+  <!-- 3. Historial de Estados -->
+  <div style="grid-column: span 6;" class="card">
+    <h2>Historial de Estados</h2>
+    {% for h in orden.historial_estados.all %}
+    <div class="historial-row">
+      <span class="text-meta">{{ h.timestamp|date:"d/m/Y H:i" }}</span>
+      &nbsp;
+      <strong>{{ h.estado_anterior|default:"—" }}</strong> → <strong>{{ h.estado_nuevo }}</strong>
+      {% if h.notas_transicion %}<br><span class="text-meta" style="padding-left: 16px;">{{ h.notas_transicion }}</span>{% endif %}
+    </div>
+    {% empty %}
+    <p class="text-meta">Sin historial registrado.</p>
+    {% endfor %}
+  </div>
+
+  <!-- 4. WhatsApp -->
+  <div style="grid-column: span 6;" class="card">
+    <h2>Mensajes WhatsApp</h2>
+    <p class="text-meta" style="margin-bottom: 14px;">Haz clic en la plantilla deseada para abrir el chat del cliente con el mensaje prerellenado.</p>
+    {% for clave, wa in urls_whatsapp.items %}
+    <a href="{{ wa.url }}" class="wa-btn" target="_blank" rel="noopener noreferrer">
+      <span>💬</span> {{ wa.nombre }}
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- 5. Checklist de Inspección -->
+  <div style="grid-column: span 6;" class="card">
+    <h2>Checklist de Recepción <span class="badge" style="margin-left: 8px; font-size: 10px;">Inmutable</span></h2>
     {% if orden.checklist %}
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px;">
       {% for key, val in orden.checklist.datos_inspeccion.items %}
       <tr style="border-bottom: 1px solid var(--border-color);">
-        <td style="padding: 8px; font-weight: bold; width: 30%;">{{ key|capfirst }}</td>
-        <td style="padding: 8px;">{{ val }}</td>
+        <td style="padding: 6px 0; font-weight: bold; width: 35%;">{{ key|capfirst }}</td>
+        <td style="padding: 6px 0;">{{ val }}</td>
       </tr>
       {% endfor %}
     </table>
-    <p class="text-meta" style="font-family: monospace;">Firma Digital SHA-256: {{ orden.checklist.hash_sha256 }}</p>
+    <p class="text-meta" style="font-family: monospace; font-size: 10px; word-break: break-all;">SHA-256: {{ orden.checklist.hash_sha256 }}</p>
     {% else %}
     <p class="text-meta">Sin checklist registrado.</p>
     {% endif %}
   </div>
 
+  <!-- 6. Bitácora Técnica Privada -->
+  <div style="grid-column: span 6;" class="card">
+    <h2>Bitácora Técnica <span class="badge" style="margin-left: 8px; font-size: 10px; background: #111;">Privado</span></h2>
+    {% for entrada in orden.bitacora.all %}
+    <div class="bitacora-entry">
+      <strong>{{ entrada.autor_texto }}</strong> — <span class="text-meta">{{ entrada.timestamp|date:"d/m/Y H:i" }}</span>
+      <p style="margin-top: 6px; margin-bottom: 0;">{{ entrada.contenido }}</p>
+    </div>
+    {% empty %}
+    <p class="text-meta" style="margin-bottom: 14px;">Sin notas técnicas registradas.</p>
+    {% endfor %}
+
+    <form method="post" action="{% url 'agregar_bitacora' codigo_orden=orden.codigo_orden %}" style="margin-top: 14px; border-top: 1px solid var(--border-color); padding-top: 14px;">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Agregar Nota Técnica</label>
+        <textarea name="contenido" class="form-control" rows="3" placeholder="Ej. Voltaje en placa 3.3v OK. Batería 80% salud. Cambio de pasta térmica aplicado."></textarea>
+      </div>
+      <button type="submit" class="btn btn--primary" style="margin-top: 8px;">+ Guardar Nota</button>
+    </form>
+  </div>
+
+  <!-- 7. Fotos de Evidencia -->
   {% if orden.fotos.all %}
   <div style="grid-column: span 12;" class="card">
-    <h2>Fotografías de Evidencia Recibida</h2>
-    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+    <h2>Fotografías de Evidencia</h2>
+    <div style="display: flex; gap: 14px; flex-wrap: wrap;">
       {% for foto in orden.fotos.all %}
-      <div style="border: 1px solid var(--border-color); padding: 8px; max-width: 200px;">
-        <img src="{{ foto.imagen.url }}" alt="{{ foto.anotacion }}" style="max-width: 100%; height: auto; display: block; margin-bottom: 8px;">
+      <div style="border: 1px solid var(--border-color); padding: 8px; max-width: 180px; border-radius: 2px;">
+        <img src="{{ foto.imagen.url }}" alt="{{ foto.anotacion }}" style="max-width: 100%; height: auto; display: block; margin-bottom: 6px;">
         <span class="text-meta">{{ foto.anotacion }}</span>
       </div>
       {% endfor %}
     </div>
   </div>
   {% endif %}
+
 </div>
 {% endblock %}

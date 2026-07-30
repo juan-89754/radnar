@@ -229,3 +229,47 @@ class FotoEvidencia(models.Model):
 
     def __str__(self):
         return f"Foto {self.orden.codigo_orden} - {self.anotacion or 'Sin anotación'}"
+
+
+class HistorialEstadoOrden(models.Model):
+    """Registro inmutable de cada cambio de estado de la orden (trazabilidad Kanban)."""
+
+    orden = models.ForeignKey(
+        Orden, on_delete=models.CASCADE, related_name="historial_estados"
+    )
+    estado_anterior = models.CharField(max_length=30, verbose_name="Estado Anterior")
+    estado_nuevo = models.CharField(max_length=30, verbose_name="Estado Nuevo")
+    notas_transicion = models.TextField(blank=True, verbose_name="Notas de Transición")
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Historial de Estado"
+        verbose_name_plural = "Historial de Estados"
+        ordering = ["timestamp"]
+
+    def __str__(self):
+        return (
+            f"{self.orden.codigo_orden}: {self.estado_anterior} → {self.estado_nuevo}"
+        )
+
+
+class BitacoraTecnica(models.Model):
+    """Bitácora interna del técnico: mediciones, hallazgos y notas privadas por orden."""
+
+    orden = models.ForeignKey(Orden, on_delete=models.CASCADE, related_name="bitacora")
+    autor_texto = models.CharField(
+        max_length=100, default="Técnico", verbose_name="Registrado por"
+    )
+    contenido = models.TextField(verbose_name="Nota Técnica / Medición / Hallazgo")
+    es_privado = models.BooleanField(
+        default=True, verbose_name="Entrada Privada (Solo Técnico)"
+    )
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Bitácora Técnica"
+        verbose_name_plural = "Bitácoras Técnicas"
+        ordering = ["timestamp"]
+
+    def __str__(self):
+        return f"Bitácora {self.orden.codigo_orden} — {self.timestamp.strftime('%d/%m/%Y %H:%M')}"
