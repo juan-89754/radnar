@@ -4,47 +4,67 @@
 
 {% block content %}
 <div class="grid-12" style="margin-bottom: var(--space-24);">
-  <div style="grid-column: span 12;">
+  <div style="grid-column: span 7;">
     <h1>Gestión de Cotizaciones</h1>
     <p class="text-meta">Cotización multilínea, opciones A/B, scraping de precios y márgenes automáticos.</p>
+  </div>
+  <div style="grid-column: span 5; text-align: right; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+    {% if ordenes %}
+    <form style="display: flex; gap: 8px; align-items: center;" onsubmit="event.preventDefault(); var val = document.getElementById('ordenSelector').value; if(val) window.location.href = '/cotizaciones/crear/' + val + '/';">
+      <select id="ordenSelector" class="form-control" style="max-width: 220px; font-size: 12px;">
+        <option value="">-- Seleccionar Orden --</option>
+        {% for ord in ordenes %}
+        <option value="{{ ord.codigo_orden }}">{{ ord.codigo_orden }} — {{ ord.cliente.nombre_completo }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn--primary">+ Crear Cotización</button>
+    </form>
+    {% else %}
+    <a href="{% url 'recepcion_nueva' %}" class="btn btn--primary">+ Registrar Orden Primero</a>
+    {% endif %}
   </div>
 </div>
 
 <div class="card" style="padding: 0;">
-  <table style="width: 100%; border-collapse: collapse;">
-    <thead>
-      <tr style="border-bottom: 1px solid var(--border-color); background-color: var(--bg-secondary); text-transform: uppercase; font-size: 11px; color: var(--text-secondary);">
-        <th style="padding: 12px 16px; text-align: left;">ID / Título</th>
-        <th style="padding: 12px 16px; text-align: left;">Orden</th>
-        <th style="padding: 12px 16px; text-align: left;">Cliente</th>
-        <th style="padding: 12px 16px; text-align: left;">Total Opción A</th>
-        <th style="padding: 12px 16px; text-align: left;">Estado</th>
-        <th style="padding: 12px 16px; text-align: right;">Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for cot in cotizaciones %}
-      <tr style="border-bottom: 1px solid var(--border-color);">
-        <td style="padding: 12px 16px;">
-          <strong>{{ cot.titulo }}</strong><br>
-          <span class="text-meta">Creada el {{ cot.created_at|date:"d/m/Y" }}</span>
-        </td>
-        <td style="padding: 12px 16px; font-family: monospace; font-weight: bold;">{{ cot.orden.codigo_orden }}</td>
-        <td style="padding: 12px 16px;">{{ cot.orden.cliente.nombre_completo }}</td>
-        <td style="padding: 12px 16px; font-weight: bold; color: var(--accent-color);">${{ cot.total_opcion_a }}</td>
-        <td style="padding: 12px 16px;"><span class="badge">{{ cot.get_estado_display }}</span></td>
-        <td style="padding: 12px 16px; text-align: right;">
-          <a href="{% url 'cotizacion_detalle' cotizacion_id=cot.id %}" class="btn" style="padding: 4px 8px; font-size: 12px;">Editar / Ver</a>
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="6" style="padding: 24px; text-align: center;" class="text-meta">
-          No hay cotizaciones registradas.
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="table-responsive">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="border-bottom: 1px solid var(--border-color); background-color: var(--bg-secondary); text-transform: uppercase; font-size: 11px; color: var(--text-secondary);">
+          <th style="padding: 12px 16px; text-align: left;">ID / Título</th>
+          <th style="padding: 12px 16px; text-align: left;">Orden</th>
+          <th style="padding: 12px 16px; text-align: left;">Cliente</th>
+          <th style="padding: 12px 16px; text-align: left;">Total Opción A</th>
+          <th style="padding: 12px 16px; text-align: left;">Estado</th>
+          <th style="padding: 12px 16px; text-align: right;">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cot in cotizaciones %}
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 12px 16px;">
+            <strong>{{ cot.titulo }}</strong><br>
+            <span class="text-meta">Creada el {{ cot.created_at|date:"d/m/Y" }}</span>
+          </td>
+          <td style="padding: 12px 16px; font-family: monospace; font-weight: bold;">
+            <a href="{% url 'orden_detalle' codigo_orden=cot.orden.codigo_orden %}">{{ cot.orden.codigo_orden }}</a>
+          </td>
+          <td style="padding: 12px 16px;">{{ cot.orden.cliente.nombre_completo }}</td>
+          <td style="padding: 12px 16px; font-weight: bold; color: var(--accent-color);">${{ cot.total_opcion_a }}</td>
+          <td style="padding: 12px 16px;"><span class="badge">{{ cot.get_estado_display }}</span></td>
+          <td style="padding: 12px 16px; text-align: right;">
+            <a href="{% url 'cotizacion_detalle' cotizacion_id=cot.id %}" class="btn" style="padding: 4px 8px; font-size: 12px;">Editar / Ver Lineas</a>
+            <a href="{% url 'descargar_cotizacion_pdf' cotizacion_id=cot.id %}" class="btn btn--primary" style="padding: 4px 8px; font-size: 12px;" target="_blank">📄 PDF</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="padding: 24px; text-align: center;" class="text-meta">
+            No hay cotizaciones registradas. Selecciona una orden arriba y presiona <strong>+ Crear Cotización</strong>.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}

@@ -11,19 +11,25 @@ class ClienteForm(forms.ModelForm):
         fields = ["nombre_completo", "telefono", "email", "direccion", "notas"]
         widgets = {
             "nombre_completo": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Ej. Maria Lopez"}
+                attrs={"class": "form-control", "placeholder": "Ej. John Doe"}
             ),
             "telefono": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "+573206672858"}
+                attrs={"class": "form-control", "placeholder": "+573206672858 o 3206672858"}
             ),
             "email": forms.EmailInput(
-                attrs={"class": "form-control", "placeholder": "correo@ejemplo.com"}
+                attrs={"class": "form-control", "placeholder": "john.doe@ejemplo.com"}
             ),
             "direccion": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Calle 10 # 20-30"}
             ),
             "notas": forms.Textarea(attrs={"class": "form-control", "rows": 2}),
         }
+
+    def clean_telefono(self):
+        tel = self.cleaned_data.get("telefono", "").strip().replace(" ", "").replace("-", "")
+        if len(tel) == 10 and tel.startswith("3"):
+            tel = "+57" + tel
+        return tel
 
 
 class EquipoForm(forms.ModelForm):
@@ -32,7 +38,7 @@ class EquipoForm(forms.ModelForm):
         widget=forms.PasswordInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "PIN / Contraseña del equipo",
+                "placeholder": "PIN / Contraseña de acceso (ej. 1234)",
             }
         ),
         label="PIN / Contraseña del Equipo (Cifrada con Fernet)",
@@ -54,14 +60,14 @@ class EquipoForm(forms.ModelForm):
             "marca": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "Ej. Lenovo, Asus, Apple",
+                    "placeholder": "Ej. Lenovo, Apple, Asus",
                 }
             ),
             "modelo": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Ej. ThinkPad T14"}
+                attrs={"class": "form-control", "placeholder": "Ej. Laptop Pro 15"}
             ),
             "numero_serie": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "S/N Opcional"}
+                attrs={"class": "form-control", "placeholder": "Ej. SN-987654X"}
             ),
             "procesador": forms.TextInput(
                 attrs={"class": "form-control", "placeholder": "Ej. Intel i7 12va gen"}

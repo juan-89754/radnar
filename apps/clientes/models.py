@@ -8,11 +8,14 @@ def validate_e164_phone(value):
     """
     Validates that a phone number adheres strictly to the E.164 international format.
     Example: +573206672858 or +14155552671
+    Autocorrects 10-digit Colombian numbers missing +57.
     """
     if not value:
         return
-    # Strip spaces or hyphens for user convenience if provided
-    clean_val = value.strip().replace(" ", "").replace("-", "")
+    clean_val = str(value).strip().replace(" ", "").replace("-", "")
+    if len(clean_val) == 10 and clean_val.startswith("3"):
+        clean_val = "+57" + clean_val
+
     pattern = r"^\+[1-9]\d{6,14}$"
     if not re.match(pattern, clean_val):
         raise ValidationError(
@@ -43,10 +46,13 @@ class Cliente(models.Model):
     def clean(self):
         super().clean()
         if self.telefono:
-            # Normalizar teléfono quitando espacios e guiones antes de guardar
-            self.telefono = self.telefono.strip().replace(" ", "").replace("-", "")
+            clean_val = self.telefono.strip().replace(" ", "").replace("-", "")
+            if len(clean_val) == 10 and clean_val.startswith("3"):
+                clean_val = "+57" + clean_val
+            self.telefono = clean_val
 
     def save(self, *args, **kwargs):
+        self.clean()
         self.full_clean()
         super().save(*args, **kwargs)
 

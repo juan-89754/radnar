@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 # Dominio rate limiter: rastrea el timestamp de la última solicitud por dominio
 LAST_REQUEST_TIMES = {}
-MIN_DELAY_SECONDS = 5.0
+MIN_DELAY_SECONDS = 0.5
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
@@ -20,7 +20,7 @@ HEADERS = {
 
 def rate_limit_domain(url: str):
     """
-    Garantiza que transcurran al menos 5 segundos entre solicitudes consecutivas al mismo dominio.
+    Garantiza que transcurra un pequeño retardo sin congelar la respuesta del servidor.
     """
     domain = urlparse(url).netloc
     last_time = LAST_REQUEST_TIMES.get(domain, 0)
@@ -174,7 +174,7 @@ def extraer_metadatos_proveedor(url: str) -> dict:
     rate_limit_domain(url)
 
     try:
-        response = requests.get(url, headers=HEADERS, timeout=10)
+        response = requests.get(url, headers=HEADERS, timeout=3)
         if response.status_code != 200:
             return {
                 "titulo": None,

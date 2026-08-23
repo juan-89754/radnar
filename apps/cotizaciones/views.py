@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.cotizaciones.forms import CotizacionForm, LineaCotizacionForm
-from apps.cotizaciones.models import Cotizacion, EnlaceProveedor
+from apps.cotizaciones.models import Cotizacion, EnlaceProveedor, LineaCotizacion
 from apps.cotizaciones.services.scraper import extraer_metadatos_proveedor
 from apps.documentos.services import generar_pdf_cotizacion
 from apps.ordenes.models import Orden
@@ -11,8 +11,11 @@ from apps.ordenes.models import Orden
 
 def cotizaciones_list(request):
     cotizaciones = Cotizacion.objects.select_related("orden", "orden__cliente").all()
+    ordenes = Orden.objects.select_related("cliente", "equipo").all()
     return render(
-        request, "cotizaciones/cotizaciones_list.html", {"cotizaciones": cotizaciones}
+        request,
+        "cotizaciones/cotizaciones_list.html",
+        {"cotizaciones": cotizaciones, "ordenes": ordenes},
     )
 
 
@@ -26,9 +29,13 @@ def cotizacion_crear(request, codigo_orden):
             cotizacion.save()
             messages.success(
                 request,
-                f"Cotización #{cotizacion.id} creada para la orden {orden.codigo_orden}.",
+                f"¡Cotización #{cotizacion.id} creada exitosamente para la orden {orden.codigo_orden}!",
             )
             return redirect("cotizacion_detalle", cotizacion_id=cotizacion.id)
+        else:
+            messages.error(
+                request, "Error al crear la cotización. Por favor revisa los datos ingresados."
+            )
     else:
         form = CotizacionForm()
 
@@ -78,9 +85,14 @@ def cotizacion_detalle(request, cotizacion_id):
                     linea.save()
 
             messages.success(
-                request, f"Línea '{linea.descripcion}' agregada a la cotización."
+                request, f"¡Línea '{linea.descripcion}' agregada correctamente!"
             )
             return redirect("cotizacion_detalle", cotizacion_id=cotizacion.id)
+        else:
+            messages.error(
+                request,
+                "Error al agregar la línea. Asegúrate de ingresar una descripción y precio válido."
+            )
     else:
         linea_form = LineaCotizacionForm()
 
@@ -93,6 +105,14 @@ def cotizacion_detalle(request, cotizacion_id):
             "linea_form": linea_form,
         },
     )
+
+
+def linea_cotizacion_eliminar(request, linea_id):
+    linea = get_object_or_404(LineaCotizacion, id=linea_id)
+    cotizacion_id = linea.cotizacion_id
+    linea.delete()
+    messages.success(request, "Línea eliminada de la cotización.")
+    return redirect("cotizacion_detalle", cotizacion_id=cotizacion_id)
 
 
 def descargar_cotizacion_pdf(request, cotizacion_id):

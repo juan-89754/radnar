@@ -9,6 +9,8 @@ urlpatterns = [
     path("", TemplateView.as_view(template_name="index.html"), name="home"),
     path("ordenes/", include("apps.ordenes.urls")),
     path("cotizaciones/", include("apps.cotizaciones.urls")),
+    path("clientes/", include("apps.clientes.urls")),
+    path("equipos/", include("apps.equipos.urls")),
 ]
 
 if settings.DEBUG:

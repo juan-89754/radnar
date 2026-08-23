@@ -73,7 +73,14 @@
     </p>
   </div>
   <div style="grid-column: span 4; text-align: right; display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
-    <a href="{% url 'descargar_comprobante_pdf' codigo_orden=orden.codigo_orden %}" class="btn btn--primary" target="_blank">📄 Comprobante PDF</a>
+    {% if cotizaciones %}
+      {% for cot in cotizaciones %}
+      <a href="{% url 'cotizacion_detalle' cotizacion_id=cot.id %}" class="btn btn--primary">💰 Ver Cotización #{{ cot.id }}</a>
+      {% endfor %}
+    {% else %}
+      <a href="{% url 'cotizacion_crear' codigo_orden=orden.codigo_orden %}" class="btn btn--primary">➕ Crear Cotización</a>
+    {% endif %}
+    <a href="{% url 'descargar_comprobante_pdf' codigo_orden=orden.codigo_orden %}" class="btn" target="_blank">📄 Comprobante PDF</a>
     <a href="{% url 'descargar_ticket_termico' codigo_orden=orden.codigo_orden %}" class="btn" target="_blank">🖨️ Ticket 80mm</a>
     <a href="{% url 'kanban_board' %}" class="btn" style="font-size: 12px;">← Volver al Kanban</a>
   </div>

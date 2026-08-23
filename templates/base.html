@@ -5,39 +5,85 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{{ business.NAME }} — Sistema de Gestión Técnica{% endblock %}</title>
-  
+
   <!-- Estilo Suizo Base -->
   <link rel="stylesheet" href="{% static 'css/swiss.css' %}">
 
-  <!-- Fuente Inter desde Google Fonts / Fallback local -->
+  <!-- Fuente Inter desde Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   {% block extra_head %}{% endblock %}
 </head>
 <body>
   <header class="header">
-    <div class="container grid-12">
-      <div style="grid-column: span 8;">
+    <div class="container header-container">
+      <div class="header-brand-wrap">
         <a href="{% url 'home' %}" class="header__brand">{{ business.NAME }}</a>
-        <div class="header__meta">Servicio Técnico de Cómputo | Técnico: {{ business.OWNER }}</div>
+        <span class="header__tag">Servicio Técnico</span>
       </div>
-      <div style="grid-column: span 4; text-align: right;">
-        <span class="badge badge--accent">En desarrollo</span>
-      </div>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir Menú">
+        ☰
+      </button>
+
+      <nav class="nav-menu" id="navMenu">
+        <a href="{% url 'home' %}" class="nav-link">Inicio</a>
+        <a href="{% url 'recepcion_nueva' %}" class="nav-link nav-link--highlight">+ Recepción</a>
+        <a href="{% url 'kanban_board' %}" class="nav-link">Tablero Kanban</a>
+        <a href="{% url 'ordenes_list' %}" class="nav-link">Órdenes</a>
+        <a href="{% url 'cotizaciones_list' %}" class="nav-link">Cotizaciones</a>
+        <a href="{% url 'clientes_list' %}" class="nav-link">Clientes</a>
+        <a href="{% url 'equipos_list' %}" class="nav-link">Equipos</a>
+      </nav>
     </div>
   </header>
 
   <main class="container">
+    <!-- Alertas Emergentes de Mensajes y Validaciones -->
+    {% if messages %}
+    <div class="messages-container" style="margin-bottom: var(--space-24);">
+      {% for message in messages %}
+      <div class="alert alert--{{ message.tags|default:'info' }}">
+        <span class="alert-icon">
+          {% if message.tags == 'success' %}✅
+          {% elif message.tags == 'error' %}❌
+          {% elif message.tags == 'warning' %}⚠️
+          {% else %}ℹ️{% endif %}
+        </span>
+        <div class="alert-content">{{ message }}</div>
+        <button class="alert-close" onclick="this.parentElement.style.display='none';">&times;</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     {% block content %}{% endblock %}
   </main>
 
-  <footer style="margin-top: var(--space-64); border-top: 1px solid var(--border-color); padding: var(--space-24) 0;" class="text-meta">
-    <div class="container">
-      RADNAR &copy; {% now "Y" %} | Contacto: {{ business.PHONE }} — {{ business.EMAIL }}
+  <footer class="footer">
+    <div class="container text-meta" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div>
+        RADNAR &copy; {% now "Y" %} | Servicio Técnico de Cómputo — Propietario: {{ business.OWNER }}
+      </div>
+      <div>
+        Contacto: {{ business.PHONE }} — {{ business.EMAIL }}
+      </div>
     </div>
   </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const navToggle = document.getElementById('navToggle');
+      const navMenu = document.getElementById('navMenu');
+      if (navToggle && navMenu) {
+        navToggle.addEventListener('click', function() {
+          navMenu.classList.toggle('active');
+        });
+      }
+    });
+  </script>
 
   {% block extra_js %}{% endblock %}
 </body>

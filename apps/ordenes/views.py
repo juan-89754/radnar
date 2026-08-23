@@ -140,6 +140,9 @@ def recepcion_nueva(request):
         telefono_ingresado = (
             request.POST.get("telefono", "").strip().replace(" ", "").replace("-", "")
         )
+        if len(telefono_ingresado) == 10 and telefono_ingresado.startswith("3"):
+            telefono_ingresado = "+57" + telefono_ingresado
+
         cliente_existente = Cliente.objects.filter(telefono=telefono_ingresado).first()
         cliente_valid = True if cliente_existente else cliente_form.is_valid()
 
@@ -201,9 +204,14 @@ def recepcion_nueva(request):
                 )
 
                 messages.success(
-                    request, f"Orden {orden.codigo_orden} creada exitosamente."
+                    request, f"¡Éxito! Orden {orden.codigo_orden} registrada y guardada correctamente en la base de datos."
                 )
                 return redirect("orden_detalle", codigo_orden=orden.codigo_orden)
+        else:
+            messages.error(
+                request,
+                "No se pudo guardar. Por favor revisa los campos requeridos y los errores señalados en rojo."
+            )
     else:
         cliente_form = ClienteForm()
         equipo_form = EquipoForm()
@@ -225,12 +233,13 @@ def recepcion_nueva(request):
 def orden_detalle(request, codigo_orden):
     orden = get_object_or_404(
         Orden.objects.select_related("cliente", "equipo", "checklist").prefetch_related(
-            "fotos", "historial_estados", "bitacora"
+            "fotos", "historial_estados", "bitacora", "cotizaciones"
         ),
         codigo_orden=codigo_orden,
     )
     pin_descifrado = orden.equipo.get_pin()
     transiciones_disponibles = TRANSICIONES_PERMITIDAS.get(orden.estado, [])
+    cotizaciones = orden.cotizaciones.all()
 
     # Generar todas las URLs de WhatsApp disponibles
     urls_whatsapp = {}
@@ -248,6 +257,7 @@ def orden_detalle(request, codigo_orden):
             "pin_descifrado": pin_descifrado,
             "transiciones_disponibles": transiciones_disponibles,
             "urls_whatsapp": urls_whatsapp,
+            "cotizaciones": cotizaciones,
         },
     )
 

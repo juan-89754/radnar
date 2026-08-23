@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Equipos — {{ business.NAME }}{% endblock %}
+
+{% block content %}
+<div class="grid-12" style="margin-bottom: var(--space-24);">
+  <div style="grid-column: span 8;">
+    <h1>Registro de Equipos</h1>
+    <p class="text-meta">Historial de computadores y dispositivos atendidos en el taller.</p>
+  </div>
+  <div style="grid-column: span 4; text-align: right;">
+    <a href="{% url 'recepcion_nueva' %}" class="btn btn--primary">+ Ingresar Nuevo Equipo</a>
+  </div>
+</div>
+
+<div class="card" style="padding: 0;">
+  <div class="table-responsive">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="border-bottom: 1px solid var(--border-color); background-color: var(--bg-secondary); text-transform: uppercase; font-size: 11px; color: var(--text-secondary);">
+          <th style="padding: 12px 16px; text-align: left;">Tipo / Marca / Modelo</th>
+          <th style="padding: 12px 16px; text-align: left;">Propietario (Cliente)</th>
+          <th style="padding: 12px 16px; text-align: left;">Número de Serie</th>
+          <th style="padding: 12px 16px; text-align: left;">Especificaciones</th>
+          <th style="padding: 12px 16px; text-align: right;">Fecha Ingreso</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for equipo in equipos %}
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 12px 16px;">
+            <strong>{{ equipo.get_tipo_display }}</strong><br>
+            {{ equipo.marca }} {{ equipo.modelo }}
+          </td>
+          <td style="padding: 12px 16px;">
+            <strong>{{ equipo.cliente.nombre_completo }}</strong><br>
+            <span class="text-meta">{{ equipo.cliente.telefono }}</span>
+          </td>
+          <td style="padding: 12px 16px; font-family: monospace;">{{ equipo.numero_serie|default:"Sin S/N" }}</td>
+          <td style="padding: 12px 16px;" class="text-meta">
+            {{ equipo.procesador }} {{ equipo.ram }} {{ equipo.almacenamiento }}
+          </td>
+          <td style="padding: 12px 16px; text-align: right;" class="text-meta">{{ equipo.created_at|date:"d/m/Y" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" style="padding: 24px; text-align: center;" class="text-meta">
+            No hay equipos registrados en el sistema.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

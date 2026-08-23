@@ -55,3 +55,30 @@ class OrdenChecklistBusinessRulesTest(TestCase):
         pdf_bytes = generar_pdf_comprobante_recepcion(self.orden)
         self.assertTrue(len(pdf_bytes) > 0)
         self.assertTrue(pdf_bytes.startswith(b"%PDF"))
+
+    def test_telefono_autonormalizacion_10_digitos(self):
+        cliente = Cliente.objects.create(
+            nombre_completo="Cliente Diez Digitos", telefono="3206672858"
+        )
+        self.assertEqual(cliente.telefono, "+573206672858")
+
+    def test_recepcion_nueva_guardado_exitoso_bd(self):
+        response = self.client.post("/ordenes/nueva-recepcion/", {
+            "telefono": "3109876543",
+            "nombre_completo": "Carlos Perez",
+            "tipo": "laptop",
+            "marca": "Asus",
+            "modelo": "ZenBook",
+            "pin_plano": "1234",
+            "motivo_ingreso": "Pantalla rota",
+            "pantalla_estado": "fisurada",
+            "teclado_estado": "ok",
+            "chasis_estetico": "excelente",
+            "enciende": "si"
+        })
+        self.assertEqual(response.status_code, 302)
+        # Verificar que se guardó en la base de datos
+        cliente = Cliente.objects.get(telefono="+573109876543")
+        self.assertEqual(cliente.nombre_completo, "Carlos Perez")
+        self.assertEqual(Orden.objects.filter(cliente=cliente).count(), 1)
+
