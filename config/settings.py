@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third-party packages
     "rest_framework",
-    "dbbackup",
     # Local apps
     "apps.core",
     "apps.clientes",
@@ -46,6 +45,13 @@ INSTALLED_APPS = [
     "apps.reportes",
     "apps.documentos",
 ]
+
+# dbbackup is optional (not available on Android/Chaquopy)
+try:
+    import dbbackup  # noqa: F401
+    INSTALLED_APPS.append("dbbackup")
+except ImportError:
+    pass
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
