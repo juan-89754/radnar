@@ -9,8 +9,8 @@ version = "0.0.1"
 [tool.briefcase.app.radnar]
 formal_name = "Radnar App"
 description = "Aplicacion Django para radnar"
-sources = ["."]
-
+      sources = ["radnar"]
+      license = "MIT"
 [tool.briefcase.app.radnar.system.android]
 requires = [
     "django>=5.0,<5.2",
