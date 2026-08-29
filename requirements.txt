@@ -1,29 +1,29 @@
 # Core Django & API
-Django>=5.0,<5.2
-djangorestframework>=3.14.0
-python-dotenv>=1.0.1
+Django
+djangorestframework
+python-dotenv
 
 # Security & Encryption
-cryptography>=42.0.0
+cryptography
 
 # Document & Image Processing
 reportlab
-Pillow>=10.2.0
-pdf2image>=1.17.0
-openpyxl>=3.1.2
+Pillow
+pdf2image
+openpyxl
 
 # Scraping & Web Utilities
-requests>=2.31.0
-beautifulsoup4>=4.12.3
+requests
+beautifulsoup4
 
 # Storage & Backups
-django-storages>=1.14.2
-django-dbbackup>=4.1.0
+django-storages
+django-dbbackup
 
 # Quality & Testing
-black>=24.0.0
-ruff>=0.3.0
-isort>=5.13.0
-mypy>=1.9.0
-pytest>=8.0.0
-pytest-django>=4.8.0
+black
+ruff
+isort
+mypy
+pytest
+pytest-django
