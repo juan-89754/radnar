@@ -163,3 +163,8 @@ def main():
         app_id="com.radnar",
     )
 
+
+if __name__ == "__main__":
+    main().main_loop()
+
+
