@@ -24,8 +24,10 @@ requires = [
 ]
 
 [tool.briefcase.app.radnar.android]
+android_manifest_application_attrs_extra_content = 'android:usesCleartextTraffic="true"'
 build_gradle_dependencies = [
     "androidx.appcompat:appcompat:1.6.1",
     "androidx.constraintlayout:constraintlayout:2.1.4",
     "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0",
 ]
+
